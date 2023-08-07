@@ -1,16 +1,16 @@
 Hands on Lab
 Import pandas module.
-In [1]:
+In [15]:
 
 import pandas as pd
 Load the dataset into a dataframe.
-In [2]:
+In [16]:
 
 df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DA0321EN-SkillsNetwork/LargeData/m1_survey_data.csv")
 Finding duplicates
 In this section you will identify duplicate values in the dataset.
 Find how many duplicate rows exist in the dataframe.
-In [3]:
+In [17]:
 
 num_duplicate_rows = df.duplicated().sum()
 ​
@@ -19,12 +19,12 @@ print("Number of duplicate rows:", num_duplicate_rows)
 Number of duplicate rows: 154
 Removing duplicates
 Remove the duplicate rows from the dataframe.
-In [4]:
+In [18]:
 
 df_without_duplicates = df.drop_duplicates()
 ​
 Verify if duplicates were actually dropped.
-In [5]:
+In [19]:
 
 original_num_rows = df.shape[0]
 df_without_duplicates = df.drop_duplicates()
@@ -37,6 +37,126 @@ else:
 ​
 ​
 Duplicates were removed.
+In [20]:
+
+# Assuming df is your DataFrame after removing duplicates
+yearly_paid_count = df[df['CompFreq'] == 'Yearly'].shape[0]
+​
+print("Number of respondents being paid yearly:", yearly_paid_count)
+​
+Number of respondents being paid yearly: 6163
+In [24]:
+
+Q1 = df['ConvertedComp'].quantile(0.25)
+Q3 = df['ConvertedComp'].quantile(0.75)
+IQR = Q3 - Q1
+​
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+​
+filtered_df = df[(df['ConvertedComp'] >= lower_bound) & (df['ConvertedComp'] <= upper_bound)]
+​
+median_converted_comp_after_outliers = filtered_df['ConvertedComp'].median()
+​
+print("Median ConvertedComp after removing outliers:", median_converted_comp_after_outliers)
+​
+Median ConvertedComp after removing outliers: 52704.0
+In [26]:
+
+Q1_age = df['Age'].quantile(0.25)
+Q3_age = df['Age'].quantile(0.75)  # Add this line to calculate Q3_age
+IQR_age = Q3_age - Q1_age
+​
+lower_bound_age = Q1_age - 1.5 * IQR_age
+​
+outliers_below_Q1 = df[df['Age'] < lower_bound_age]
+​
+num_outliers_below_Q1 = outliers_below_Q1.shape[0]
+​
+print("Number of outliers below Q1:", num_outliers_below_Q1)
+​
+​
+Number of outliers below Q1: 0
+In [27]:
+
+mean_converted_comp_after_outliers = filtered_df['ConvertedComp'].mean()
+print("Mean ConvertedComp after removing outliers:", mean_converted_comp_after_outliers)
+​
+Mean ConvertedComp after removing outliers: 59878.65515139199
+In [22]:
+
+median_converted_comp_woman = df[df['Gender'] == 'Woman']['ConvertedComp'].median()
+​
+print("Median ConvertedComp for respondents who identified as 'Woman':", median_converted_comp_woman)
+​
+​
+Median ConvertedComp for respondents who identified as 'Woman': 57636.0
+In [28]:
+
+correlation_matrix = df.corr()
+​
+# Negative correlation with "Age"
+negative_correlation = correlation_matrix['Age'].sort_values().head(1)
+​
+# Highest correlation with "Age"
+highest_correlation = correlation_matrix['Age'].sort_values(ascending=False).head(2).iloc[1:]
+​
+print("Column with negative correlation with 'Age':", negative_correlation.index[0])
+print("Column with the highest correlation with 'Age':", highest_correlation.index[0])
+​
+Column with negative correlation with 'Age': CodeRevHrs
+Column with the highest correlation with 'Age': ConvertedComp
+In [23]:
+
+import matplotlib.pyplot as plt
+​
+# Create a histogram of ages
+plt.hist(df['Age'], bins=10, edgecolor='black')
+​
+# Add labels and title
+plt.xlabel('Age')
+plt.ylabel('Number of Respondents')
+plt.title('Histogram of Respondent Ages')
+​
+# Show the plot
+plt.show()
+​
+
+In [29]:
+
+import pandas as pd
+import matplotlib.pyplot as plt
+​
+​
+​
+In [30]:
+
+# Replace 'Age' and 'WorkWeekHrs' with your actual column names
+plt.scatter(df['Age'], df['WorkWeekHrs'])
+​
+# Add labels and title
+plt.xlabel('Age')
+plt.ylabel('WorkWeekHrs')
+plt.title('Scatter Plot of Age vs. WorkWeekHrs')
+​
+# Show the plot
+plt.show()
+​
+
+In [31]:
+
+correlation = df['Age'].corr(df['WorkWeekHrs'])
+print("Correlation between Age and WorkWeekHrs:", correlation)
+​
+Correlation between Age and WorkWeekHrs: 0.03688694959626343
+In [32]:
+
+import seaborn as sns
+sns.regplot(x='Age', y='WorkWeekHrs', data=df)
+​
+Out[32]:
+<AxesSubplot:xlabel='Age', ylabel='WorkWeekHrs'>
+
 Finding Missing values
 Find the missing values for all columns.
 In [6]:
